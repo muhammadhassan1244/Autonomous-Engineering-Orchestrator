@@ -1,0 +1,1804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Graviton | Policy-Driven Multi-Agent Orchestrator for Jira</title>
+  <meta name="description" content="Enterprise AI Software Engineering Orchestrator routing Jira tasks dynamically between Antigravity, Cursor, and custom coding runtimes based on policy, cost, and capability.">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark-theme">
+  <div id="app" class="desktop-layout">
+    
+    <!-- Top System Titlebar (Electron/Desktop Frame look) -->
+    <header id="desktop-titlebar" class="titlebar">
+      <div class="titlebar-left">
+        <div class="window-controls">
+          <span class="control close"></span>
+          <span class="control minimize"></span>
+          <span class="control maximize"></span>
+        </div>
+        <div class="brand">
+          <svg class="brand-logo" viewBox="0 0 24 24" width="18" height="18" fill="none">
+            <path d="M12 2L2 19.5H22L12 2Z" stroke="#00e5ff" stroke-width="2" stroke-linejoin="round"/>
+            <circle cx="12" cy="13" r="3" fill="#2684ff"/>
+            <path d="M12 7V10" stroke="#00e5ff" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span class="brand-name">GRAVITON</span>
+          <span class="brand-bridge-badge">AGENT ORCHESTRATOR</span>
+          <span class="version-tag">v3.0.0-multi-agent</span>
+        </div>
+      </div>
+
+      <div class="titlebar-center">
+        <!-- Quick Ticket Context Switcher & Command Search -->
+        <button id="cmd-palette-btn" class="command-search-trigger" title="Command Palette (Ctrl+K)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <span class="cmd-text">Active: <strong id="topbar-ticket-badge">PAY-1429</strong> • Routed: <span class="text-cyan font-mono" id="topbar-runtime-badge">Antigravity (Gemini 3)</span></span>
+          <kbd class="kbd-shortcut">Ctrl K</kbd>
+        </button>
+      </div>
+
+      <div class="titlebar-right">
+        <!-- FinOps & Routing Indicators -->
+        <div class="finops-badge" title="Monthly savings by routing simple tasks to Antigravity instead of frontier-only">
+          <span class="text-muted">Saved MTD:</span>
+          <strong class="text-emerald font-mono">$418.20</strong>
+          <span class="finops-pct">(-78%)</span>
+        </div>
+
+        <div class="runtime-status-pill">
+          <span class="pulse-dot active"></span>
+          <span class="pill-label">Runtime: <strong class="text-cyan">Antigravity (Active)</strong></span>
+          <span class="runtime-standby" title="Cursor Agent is on hot standby if escalation is triggered">Cursor: Standby</span>
+        </div>
+
+        <div class="jira-status-pill">
+          <svg class="jira-icon" viewBox="0 0 24 24" width="12" height="12" fill="#2684ff"><path d="M11.53 2c0 2.4 1.97 4.35 4.38 4.35h3.74v3.74c0 2.4 1.97 4.35 4.38 4.35V2h-12.5zM6.48 7.05c0 2.4 1.97 4.35 4.38 4.35h3.74v3.74c0 2.4 1.97 4.35 4.38 4.35V7.05H6.48zM1.43 12.1c0 2.4 1.97 4.35 4.38 4.35h3.74v3.74c0 2.4 1.97 4.35 4.38 4.35V12.1H1.43z"/></svg>
+          <span class="pill-label">Jira Sync: <strong class="text-emerald">Live</strong></span>
+        </div>
+
+        <button id="quick-settings-btn" class="icon-action-btn" title="Orchestrator & Policy Settings">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main App Container: Sidebar + Workflow Stepper + Content -->
+    <div class="workspace-body">
+      
+      <!-- Primary Navigation Sidebar -->
+      <aside id="main-sidebar" class="sidebar">
+        <div class="sidebar-section-title">ORCHESTRATOR</div>
+        <nav class="sidebar-nav">
+          <button class="nav-item active" data-screen="dashboard" id="nav-dashboard">
+            <span class="nav-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            </span>
+            <span class="nav-label">1. Dashboard</span>
+            <span class="nav-badge" id="badge-active-agents">3 active</span>
+          </button>
+
+          <button class="nav-item" data-screen="jira-detail" id="nav-jira-detail">
+            <span class="nav-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            </span>
+            <span class="nav-label">2. Jira & Policy Routing</span>
+            <span class="nav-badge text-cyan">PAY-1429</span>
+          </button>
+
+          <button class="nav-item" data-screen="ai-plan" id="nav-ai-plan">
+            <span class="nav-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+            </span>
+            <span class="nav-label">3. AI Implementation Plan</span>
+            <span class="nav-badge badge-warning" id="badge-pending-approval">Gate</span>
+          </button>
+
+          <button class="nav-item" data-screen="agent-execution" id="nav-agent-execution">
+            <span class="nav-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+            </span>
+            <span class="nav-label">4. Agent Execution Runtime</span>
+            <span class="nav-pulse"></span>
+          </button>
+
+          <button class="nav-item" data-screen="code-changes" id="nav-code-changes">
+            <span class="nav-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="18" r="3"></circle><circle cx="6" cy="6" r="3"></circle><path d="M13 6h3a2 2 0 0 1 2 2v7"></path><line x1="6" y1="9" x2="6" y2="21"></line></svg>
+            </span>
+            <span class="nav-label">5. Code Changes</span>
+            <span class="nav-badge text-mono">+142 -18</span>
+          </button>
+
+          <button class="nav-item" data-screen="testing" id="nav-testing">
+            <span class="nav-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            </span>
+            <span class="nav-label">6. Testing & Verification</span>
+            <span class="nav-badge badge-success">4/4 pass</span>
+          </button>
+
+          <button class="nav-item" data-screen="completion" id="nav-completion">
+            <span class="nav-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            </span>
+            <span class="nav-label">7. Completion & Sync</span>
+            <span class="nav-badge text-mono">PR #342</span>
+          </button>
+
+          <button class="nav-item" data-screen="settings" id="nav-settings">
+            <span class="nav-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            </span>
+            <span class="nav-label">8. Policy Engine & Providers</span>
+            <span class="nav-badge badge-cyan">Matrix</span>
+          </button>
+        </nav>
+
+        <!-- Multi-Agent Fleet Allocation Mini-Card -->
+        <div class="sidebar-agent-card">
+          <div class="agent-card-header">
+            <div class="agent-avatar">
+              <span class="agy-symbol">⚖</span>
+            </div>
+            <div class="agent-meta">
+              <span class="agent-name">Fleet Routing Balance</span>
+              <span class="agent-status-text">68% AGY • 32% Cursor</span>
+            </div>
+          </div>
+          <div class="fleet-split-bar" title="Current Fleet Balance: 68% Antigravity (Gemini 3) / 32% Cursor (Sonnet)">
+            <div class="split-agy" style="width: 68%;"></div>
+            <div class="split-cursor" style="width: 32%;"></div>
+          </div>
+          <div class="agent-card-footer">
+            <span class="ticket-ref">PAY-1429: Antigravity</span>
+            <span class="runtime font-mono text-emerald">Est: $0.04</span>
+          </div>
+        </div>
+
+        <div class="sidebar-footer">
+          <div class="operator-profile">
+            <div class="operator-avatar">AC</div>
+            <div class="operator-info">
+              <span class="operator-name">Alex Chen</span>
+              <span class="operator-role">Staff Platform Eng • Admin</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Stage Viewport -->
+      <main id="viewport-stage" class="viewport-stage">
+        
+        <!-- Universal 9-Stage Orchestrator Stepper Bar -->
+        <section id="workflow-stepper-bar" class="workflow-stepper-bar">
+          <div class="stepper-track">
+            <div class="step-node completed" data-step="1" title="Jira Ticket Ingested">
+              <div class="step-dot">✓</div>
+              <span class="step-name">1. Jira Ticket</span>
+            </div>
+            <div class="step-connector completed"></div>
+
+            <div class="step-node completed" data-step="2" title="Policy Engine Evaluated: Routed to Antigravity (Gemini 3)">
+              <div class="step-dot">✓</div>
+              <span class="step-name">2. Policy Routing</span>
+            </div>
+            <div class="step-connector completed"></div>
+
+            <div class="step-node completed" data-step="3" title="Codebase AST Indexed">
+              <div class="step-dot">✓</div>
+              <span class="step-name">3. Codebase Analysis</span>
+            </div>
+            <div class="step-connector completed"></div>
+
+            <div class="step-node completed" data-step="4" title="AI Implementation Plan Formulated">
+              <div class="step-dot">✓</div>
+              <span class="step-name">4. Plan Formulated</span>
+            </div>
+            <div class="step-connector completed"></div>
+
+            <div class="step-node completed" data-step="5" title="Human Review Approved">
+              <div class="step-dot">✓</div>
+              <span class="step-name">5. Human Approval</span>
+            </div>
+            <div class="step-connector active-pulse"></div>
+
+            <div class="step-node in-progress" data-step="6" title="Runtime Execution in Antigravity Sandbox">
+              <div class="step-dot spinning">⚙</div>
+              <span class="step-name">6. Runtime Execution</span>
+            </div>
+            <div class="step-connector"></div>
+
+            <div class="step-node pending" data-step="7" title="Diffs & AST Changes">
+              <div class="step-dot">7</div>
+              <span class="step-name">7. Code Changes</span>
+            </div>
+            <div class="step-connector"></div>
+
+            <div class="step-node pending" data-step="8" title="Tests & Browser Verification">
+              <div class="step-dot">8</div>
+              <span class="step-name">8. Verification</span>
+            </div>
+            <div class="step-connector"></div>
+
+            <div class="step-node pending" data-step="9" title="Jira Bi-directional Update">
+              <div class="step-dot">9</div>
+              <span class="step-name">9. Jira Sync</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- SCREEN 1: DASHBOARD -->
+        <article id="screen-dashboard" class="screen-view active">
+          <header class="screen-header">
+            <div>
+              <div class="breadcrumbs">OPERATIONS / MULTI-AGENT CONTROL TOWER</div>
+              <h1 class="screen-title">Autonomous Engineering Orchestrator</h1>
+              <p class="screen-subtitle">Policy-driven routing, cost optimization, and verification control plane across Jira backlogs.</p>
+            </div>
+            <div class="header-actions">
+              <button class="btn btn-secondary" id="btn-sync-jira-now" onclick="app.syncJiraWebhooks()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                Sync Jira Webhooks
+              </button>
+              <button class="btn btn-primary" onclick="app.navigateTo('settings')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle></svg>
+                Configure Policy Rules
+              </button>
+            </div>
+          </header>
+
+          <!-- Top Metric Cards (Enhanced with FinOps & Routing) -->
+          <div class="metric-grid">
+            <div class="metric-card">
+              <div class="metric-header">
+                <span class="metric-title">Active Agent Runs</span>
+                <span class="metric-badge bg-cyan-subtle text-cyan">Multi-Runtime</span>
+              </div>
+              <div class="metric-value-row">
+                <span class="metric-number">3</span>
+                <span class="metric-subtext">running tasks</span>
+              </div>
+              <div class="metric-footer">
+                <span class="text-cyan">2 on Antigravity</span> • <span class="text-purple">1 on Cursor</span>
+              </div>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-header">
+                <span class="metric-title">FinOps Cost Optimization</span>
+                <span class="metric-badge bg-emerald-subtle text-emerald">78.4% Saved</span>
+              </div>
+              <div class="metric-value-row">
+                <span class="metric-number text-emerald">$18.42</span>
+                <span class="metric-subtext">total MTD spend</span>
+              </div>
+              <div class="metric-footer">
+                <span>Avoided <strong>$68.10</strong> frontier costs via smart routing</span>
+              </div>
+            </div>
+
+            <div class="metric-card alert-amber">
+              <div class="metric-header">
+                <span class="metric-title">Pending Human Approvals</span>
+                <span class="metric-badge bg-amber-subtle text-amber">Gate</span>
+              </div>
+              <div class="metric-value-row">
+                <span class="metric-number text-amber">2</span>
+                <span class="metric-subtext">gated plans</span>
+              </div>
+              <div class="metric-footer">
+                <span class="text-amber">1 High Risk DB migration</span> (PAY-1429)
+              </div>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-header">
+                <span class="metric-title">Auto-Escalation Rate</span>
+                <span class="metric-badge bg-purple-subtle text-purple">2-Tier Cascade</span>
+              </div>
+              <div class="metric-value-row">
+                <span class="metric-number">6.8%</span>
+                <span class="metric-subtext">AGY → Cursor</span>
+              </div>
+              <div class="metric-footer">
+                <span>93.2% completed on cheap Tier-1</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Main Dashboard Split: Active Agent Runs Table vs Policy Router & Feed -->
+          <div class="dashboard-split-layout">
+            
+            <!-- Left Column: Active Agent Runs Table -->
+            <div class="dash-panel card">
+              <div class="panel-header">
+                <div class="panel-title-wrap">
+                  <h3 class="panel-title">Active Dispatches & Routing Policy</h3>
+                  <span class="count-pill">3 active</span>
+                </div>
+                <div class="filter-group">
+                  <span class="filter-chip active">All Providers</span>
+                  <span class="filter-chip">Antigravity (2)</span>
+                  <span class="filter-chip">Cursor (1)</span>
+                </div>
+              </div>
+
+              <div class="table-container">
+                <table class="data-table" id="table-active-runs">
+                  <thead>
+                    <tr>
+                      <th>Ticket</th>
+                      <th>Summary / Task</th>
+                      <th>Assigned Runtime</th>
+                      <th>Policy Reason</th>
+                      <th>Cost</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="table-row-selected" onclick="app.switchTicket('PAY-1429'); app.navigateTo('jira-detail')">
+                      <td>
+                        <div class="ticket-cell">
+                          <span class="jira-key">PAY-1429</span>
+                          <span class="repo-tag">payment-service</span>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="task-cell-desc">
+                          <strong>Stripe webhook idempotency key handling</strong>
+                          <span class="sub-line">Step 4/7: Applying atomic lock query</span>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="provider-pill pill-antigravity">
+                          <span class="dot-spin"></span> Antigravity (Gemini 3)
+                        </span>
+                      </td>
+                      <td>
+                        <span class="policy-tag" title="Matched Rule: Standard Schema DDL + CRUD">Rule: Schema Boilerplate</span>
+                      </td>
+                      <td class="font-mono text-emerald">$0.04</td>
+                      <td>
+                        <button class="btn-table-action" onclick="event.stopPropagation(); app.switchTicket('PAY-1429'); app.navigateTo('agent-execution')">Inspect</button>
+                      </td>
+                    </tr>
+
+                    <tr onclick="app.switchTicket('AUTH-891'); app.navigateTo('jira-detail')">
+                      <td>
+                        <div class="ticket-cell">
+                          <span class="jira-key">AUTH-891</span>
+                          <span class="repo-tag">identity-service</span>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="task-cell-desc">
+                          <strong>Add PKCE verification to OAuth2 redirect</strong>
+                          <span class="sub-line">Escalated after crypto test timeout</span>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="provider-pill pill-cursor">
+                          <span class="pulse-purple"></span> Cursor (Claude 3.7)
+                        </span>
+                      </td>
+                      <td>
+                        <span class="policy-tag tag-escalation" title="Auto-escalated from Antigravity after 2 test failures">Tier-2 Escalation</span>
+                      </td>
+                      <td class="font-mono text-muted">$0.58</td>
+                      <td>
+                        <button class="btn-table-action" onclick="event.stopPropagation(); app.switchTicket('AUTH-891'); app.navigateTo('agent-execution')">Inspect</button>
+                      </td>
+                    </tr>
+
+                    <tr onclick="app.switchTicket('CORE-402'); app.navigateTo('jira-detail')">
+                      <td>
+                        <div class="ticket-cell">
+                          <span class="jira-key">CORE-402</span>
+                          <span class="repo-tag">platform-core</span>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="task-cell-desc">
+                          <strong>Graceful shutdown for Kafka consumers</strong>
+                          <span class="sub-line">Waiting for human sign-off</span>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="provider-pill pill-antigravity">
+                          <span class="dot-warning"></span> Antigravity (Gemini 3)
+                        </span>
+                      </td>
+                      <td>
+                        <span class="policy-tag">Rule: Story Points ≤ 3</span>
+                      </td>
+                      <td class="font-mono text-emerald">$0.02</td>
+                      <td>
+                        <button class="btn-table-action btn-accent" onclick="event.stopPropagation(); app.switchTicket('CORE-402'); app.navigateTo('ai-plan')">Review</button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Right Column: Policy Routing Engine Summary & Jira Feed -->
+            <div class="dash-side-column">
+              
+              <!-- Policy Engine Status Card -->
+              <div class="dash-panel card border-cyan-subtle">
+                <div class="panel-header">
+                  <div class="panel-title-wrap">
+                    <span class="text-cyan">⚡</span>
+                    <h3 class="panel-title text-cyan">Policy Engine Status</h3>
+                  </div>
+                  <span class="badge-cyan font-mono text-xs">Active Rules: 6</span>
+                </div>
+                <div class="policy-summary-box">
+                  <div class="policy-stat-row">
+                    <span class="text-muted">Tier 1 Runtime:</span>
+                    <span class="font-mono text-cyan">Antigravity (Gemini 3)</span>
+                  </div>
+                  <div class="policy-stat-row">
+                    <span class="text-muted">Tier 2 Escalation:</span>
+                    <span class="font-mono text-purple">Cursor Agent (Claude 3.7)</span>
+                  </div>
+                  <div class="policy-stat-row">
+                    <span class="text-muted">Auto-Fallback:</span>
+                    <span class="font-mono text-emerald">Enabled (2 test failures)</span>
+                  </div>
+                  <div class="policy-stat-row">
+                    <span class="text-muted">Ticket Hard Budget:</span>
+                    <span class="font-mono">$0.50 max / ticket</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Pending Approvals Banner Widget -->
+              <div class="dash-panel card border-amber">
+                <div class="panel-header">
+                  <div class="panel-title-wrap">
+                    <span class="warning-icon">⚠</span>
+                    <h3 class="panel-title text-amber">Human Sign-off Required</h3>
+                  </div>
+                  <span class="badge-amber-count">2 Gated</span>
+                </div>
+                <div class="pending-approvals-list">
+                  <div class="approval-card" onclick="app.navigateTo('ai-plan')">
+                    <div class="approval-top">
+                      <span class="jira-key">PAY-1429</span>
+                      <span class="risk-badge risk-high">HIGH RISK</span>
+                    </div>
+                    <div class="approval-reason">
+                      <strong>Database Migration: Antigravity Plan</strong>
+                      <p class="text-muted">Adds compound index on <code>idempotency_keys</code>. Est cost: $0.04.</p>
+                    </div>
+                    <div class="approval-actions">
+                      <button class="btn btn-sm btn-outline" onclick="event.stopPropagation(); app.showApprovePlanModal()">Inspect</button>
+                      <button class="btn btn-sm btn-primary" onclick="event.stopPropagation(); app.navigateTo('ai-plan')">Review Plan (A)</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Recent Jira Webhook Feed -->
+              <div class="dash-panel card">
+                <div class="panel-header">
+                  <h3 class="panel-title">Recent Jira Routing Events</h3>
+                  <span class="text-muted font-mono text-xs">JQL: ai-agent = active</span>
+                </div>
+                <div class="jira-activity-feed">
+                  <div class="feed-item" onclick="app.switchTicket('PAY-1429'); app.navigateTo('jira-detail')">
+                    <div class="feed-icon jira-dot"></div>
+                    <div class="feed-content">
+                      <div class="feed-title-line">
+                        <span class="jira-key">PAY-1429</span>
+                        <span class="feed-time">2m ago</span>
+                      </div>
+                      <div class="feed-text">Evaluated: Routed to <strong>Antigravity (Gemini 3)</strong>. Saved $0.64 vs frontier.</div>
+                    </div>
+                  </div>
+
+                  <div class="feed-item" onclick="app.switchTicket('AUTH-891'); app.navigateTo('agent-execution')">
+                    <div class="feed-icon comment-dot"></div>
+                    <div class="feed-content">
+                      <div class="feed-title-line">
+                        <span class="jira-key">AUTH-891</span>
+                        <span class="feed-time">18m ago</span>
+                      </div>
+                      <div class="feed-text">Escalated to <strong>Cursor Agent (Claude 3.7)</strong> after complex crypto failure.</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </article>
+
+        <!-- SCREEN 2: JIRA ISSUE DETAIL & POLICY ROUTING -->
+        <article id="screen-jira-detail" class="screen-view">
+          <header class="screen-header">
+            <div>
+              <div class="breadcrumbs">
+                <span>JIRA</span> / <span>PAYMENT-SERVICE</span> / <span class="text-cyan">PAY-1429</span>
+              </div>
+              <div class="ticket-heading-row">
+                <span class="jira-badge-pill">Jira Issue</span>
+                <h1 class="screen-title">PAY-1429: Stripe webhook duplicate charge due to missing idempotency</h1>
+                <span class="jira-status-badge">IN PROGRESS</span>
+              </div>
+            </div>
+            <div class="header-actions">
+              <a href="https://jira.atlassian.com" target="_blank" class="btn btn-secondary">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                Open in Jira
+              </a>
+              <button class="btn btn-primary" onclick="app.navigateTo('ai-plan')">
+                View AI Implementation Plan →
+              </button>
+            </div>
+          </header>
+
+          <!-- POLICY ROUTING DECISION CARD (FIRST CLASS) -->
+          <div class="card routing-decision-banner">
+            <div class="routing-banner-left">
+              <div class="routing-icon-badge">⚖️</div>
+              <div class="routing-text-block">
+                <div class="routing-title-line">
+                  <h3>Policy Routing Decision: <strong class="text-cyan">Antigravity (Gemini 3)</strong></h3>
+                  <span class="badge-confidence">94% Confidence</span>
+                  <span class="badge-finops">Cost: $0.04 (Cursor est: $0.58)</span>
+                </div>
+                <p class="routing-reasoning">
+                  <strong>Why Antigravity?</strong> Jira ticket classified as <em>"Database Schema Migration + Route Wrapper"</em> with localized blast radius (4 files). Antigravity with Gemini 3 offers optimal throughput at <strong>1/14th the cost of frontier models</strong> with a 98% historical pass rate on Prisma DDL tasks.
+                </p>
+              </div>
+            </div>
+
+            <div class="routing-banner-right">
+              <div class="override-box">
+                <span class="override-label">Manual Runtime Override:</span>
+                <select id="runtime-override-select" class="form-select font-mono text-xs" onchange="app.handleRuntimeOverride(this.value)">
+                  <option value="antigravity" selected>Antigravity (Gemini 3) [Policy Choice - $0.04]</option>
+                  <option value="cursor">Cursor Agent (Claude 3.7 Sonnet) [$0.58]</option>
+                  <option value="antigravity-ultra">Antigravity (Gemini 3 Ultra) [$0.18]</option>
+                </select>
+              </div>
+              <span class="escalation-note">⚡ Fallback: Auto-escalates to Cursor Agent if Vitest fails 2x</span>
+            </div>
+          </div>
+
+          <div class="detail-columns-layout">
+            <!-- Left 65%: Ticket Specs, AC, Timeline -->
+            <div class="detail-main">
+              
+              <!-- Requirement & Problem Description -->
+              <div class="card detail-section">
+                <div class="section-title-bar">
+                  <span class="section-icon">📋</span>
+                  <h3 class="section-title">Issue Description & Problem Statement</h3>
+                </div>
+                <div class="markdown-body">
+                  <p>When Stripe sends retry events for <code>charge.succeeded</code> or <code>invoice.payment_succeeded</code> during network timeouts, our payment service occasionally creates duplicate credit ledger transactions. This caused 14 customers to receive double credits during last week's upstream Stripe webhook delivery spike.</p>
+                  
+                  <h4>Technical Root Cause:</h4>
+                  <p>The webhook handler in <code>src/webhooks/stripe.ts</code> processes the event payload immediately before committing the idempotency lock. If two webhooks for the same <code>event_id</code> arrive in parallel within a 200ms window, both pass the preliminary DB check.</p>
+                </div>
+              </div>
+
+              <!-- Acceptance Criteria Checklist -->
+              <div class="card detail-section">
+                <div class="section-title-bar">
+                  <span class="section-icon">✅</span>
+                  <h3 class="section-title">Acceptance Criteria (Auto-parsed by AGY)</h3>
+                  <span class="pill-verified">3/3 Verification Rules Bound</span>
+                </div>
+                <div class="ac-checklist">
+                  <div class="ac-item checked">
+                    <span class="ac-checkbox">✓</span>
+                    <div class="ac-body">
+                      <strong>AC-1: Atomic Idempotency Storage</strong>
+                      <p>Persist incoming <code>stripe_event_id</code> inside a dedicated <code>idempotency_keys</code> table with a unique constraint before running credit allocation.</p>
+                      <span class="ac-tag-proof">Target: <code>prisma/schema.prisma</code></span>
+                    </div>
+                  </div>
+
+                  <div class="ac-item checked">
+                    <span class="ac-checkbox">✓</span>
+                    <div class="ac-body">
+                      <strong>AC-2: HTTP 200 Fast Return on Duplicates</strong>
+                      <p>If a webhook with a previously recorded <code>event_id</code> is received, acknowledge with HTTP 200 and <code>{"status":"already_processed"}</code> without re-executing ledger writes.</p>
+                      <span class="ac-tag-proof">Target: <code>src/webhooks/stripe.ts</code></span>
+                    </div>
+                  </div>
+
+                  <div class="ac-item checked">
+                    <span class="ac-checkbox">✓</span>
+                    <div class="ac-body">
+                      <strong>AC-3: Concurrent Webhook Simulation Verification</strong>
+                      <p>Add integration test firing 10 simultaneous identical webhooks with same event ID; exactly one must process ledger credit, 9 must return cached acknowledgment.</p>
+                      <span class="ac-tag-proof">Target: <code>tests/webhook-idempotency.test.ts</code></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Workflow Timeline & Agent Audit Trail -->
+              <div class="card detail-section">
+                <div class="section-title-bar">
+                  <span class="section-icon">⏱</span>
+                  <h3 class="section-title">Ticket Lifecycle & Orchestrator Audit Log</h3>
+                </div>
+                <div class="timeline-container">
+                  <div class="timeline-step done">
+                    <div class="timeline-marker"></div>
+                    <div class="timeline-detail">
+                      <div class="time-header">
+                        <span class="time-stamp">10:41 AM</span>
+                        <span class="time-title">Jira Webhook Ingested</span>
+                      </div>
+                      <p class="time-desc">Ticket PAY-1429 moved to "Ready for Dev". Orchestrator ingested issue payload.</p>
+                    </div>
+                  </div>
+
+                  <div class="timeline-step done">
+                    <div class="timeline-marker"></div>
+                    <div class="timeline-detail">
+                      <div class="time-header">
+                        <span class="time-stamp">10:41 AM</span>
+                        <span class="time-title">Policy Engine: Matched Rule #2</span>
+                      </div>
+                      <p class="time-desc">Classified as DDL Schema Boilerplate. Dispatched to <strong>Antigravity (Gemini 3)</strong> at $0.04 est.</p>
+                    </div>
+                  </div>
+
+                  <div class="timeline-step done">
+                    <div class="timeline-marker"></div>
+                    <div class="timeline-detail">
+                      <div class="time-header">
+                        <span class="time-stamp">10:44 AM</span>
+                        <span class="time-title">Implementation Plan Generated & Human Approval Requested</span>
+                      </div>
+                      <p class="time-desc">High risk flag raised due to schema migration. Approved by Alex Chen.</p>
+                    </div>
+                  </div>
+
+                  <div class="timeline-step current">
+                    <div class="timeline-marker-pulse"></div>
+                    <div class="timeline-detail">
+                      <div class="time-header">
+                        <span class="time-stamp">10:46 AM (Active)</span>
+                        <span class="time-title">Antigravity Agent Executing in Sandbox Container</span>
+                      </div>
+                      <p class="time-desc">Running isolated Prisma migration and patching TypeScript handler.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Right 35%: Repository & Runtime Metadata -->
+            <div class="detail-sidebar">
+              
+              <!-- Agent Status Card -->
+              <div class="card meta-box">
+                <h4 class="meta-box-title">Selected Agent Runtime</h4>
+                <div class="meta-row">
+                  <span class="meta-label">Provider</span>
+                  <span class="meta-val font-mono text-cyan" id="meta-provider-name">Google Antigravity</span>
+                </div>
+                <div class="meta-row">
+                  <span class="meta-label">Model Core</span>
+                  <span class="meta-val font-mono" id="meta-model-name">Gemini 3 (Thinking)</span>
+                </div>
+                <div class="meta-row">
+                  <span class="meta-label">Cost Envelope</span>
+                  <span class="meta-val text-emerald font-mono">$0.04 / $0.50 cap</span>
+                </div>
+                <div class="meta-row">
+                  <span class="meta-label">Escalation Standby</span>
+                  <span class="meta-val font-mono text-purple">Cursor Agent (Ready)</span>
+                </div>
+                <div class="meta-row">
+                  <span class="meta-label">Supervisor</span>
+                  <span class="meta-val">Alex Chen (Staff Eng)</span>
+                </div>
+              </div>
+
+              <!-- Repository & Git Context -->
+              <div class="card meta-box">
+                <h4 class="meta-box-title">Git & Repository Binding</h4>
+                <div class="meta-row">
+                  <span class="meta-label">Target Repository</span>
+                  <span class="meta-val font-mono text-cyan">acme-corp/payment-service</span>
+                </div>
+                <div class="meta-row">
+                  <span class="meta-label">Base Branch</span>
+                  <span class="meta-val font-mono">main (c7a91bf)</span>
+                </div>
+                <div class="meta-row">
+                  <span class="meta-label">Agent Branch</span>
+                  <span class="meta-val font-mono text-amber">feat/PAY-1429-idempotency</span>
+                </div>
+                <div class="meta-row">
+                  <span class="meta-label">Stack</span>
+                  <span class="meta-val">TypeScript 5.4, Prisma, Fastify</span>
+                </div>
+              </div>
+
+              <!-- Codebase Blast Radius -->
+              <div class="card meta-box">
+                <h4 class="meta-box-title">Impact Radius (4 files)</h4>
+                <ul class="impact-file-list">
+                  <li>
+                    <span class="file-state state-mod">M</span>
+                    <span class="file-path">prisma/schema.prisma</span>
+                  </li>
+                  <li>
+                    <span class="file-state state-add">A</span>
+                    <span class="file-path">src/services/idempotency.ts</span>
+                  </li>
+                  <li>
+                    <span class="file-state state-mod">M</span>
+                    <span class="file-path">src/webhooks/stripe.ts</span>
+                  </li>
+                  <li>
+                    <span class="file-state state-add">A</span>
+                    <span class="file-path">tests/webhook-idempotency.test.ts</span>
+                  </li>
+                </ul>
+              </div>
+
+            </div>
+          </div>
+        </article>
+
+        <!-- SCREEN 3: AI IMPLEMENTATION PLAN & RISK GOVERNANCE -->
+        <article id="screen-ai-plan" class="screen-view">
+          <header class="screen-header">
+            <div>
+              <div class="breadcrumbs">
+                <span>PAY-1429</span> / <span class="text-amber">AI IMPLEMENTATION PLAN</span>
+              </div>
+              <h1 class="screen-title">Plan Proposal & Architectural Governance</h1>
+              <p class="screen-subtitle">Formulated by <strong>Antigravity (Gemini 3)</strong> • Estimated compute cost: <strong>$0.04</strong></p>
+            </div>
+            <div class="header-actions">
+              <button class="btn btn-secondary" onclick="app.simulateEscalateToCursor()">
+                ⚡ Escalate to Cursor (Sonnet)
+              </button>
+              <button class="btn btn-danger-outline" onclick="app.showRequestChangesModal()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                Request Changes (R)
+              </button>
+              <button class="btn btn-success" id="btn-approve-plan-top" onclick="app.showApprovePlanModal()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                Approve & Execute (A)
+              </button>
+            </div>
+          </header>
+
+          <!-- Risk Scorecard Banner -->
+          <div class="risk-scorecard-banner">
+            <div class="risk-indicator-large">
+              <div class="risk-badge-big risk-high">HIGH RISK</div>
+              <div class="risk-score-text">
+                <span class="score-title">Risk Assessment: <strong>Level 3 / High</strong></span>
+                <span class="score-reason">Database DDL migration required on relational table with >1.2M rows.</span>
+              </div>
+            </div>
+
+            <div class="risk-matrix-factors">
+              <div class="factor-item warning">
+                <span class="factor-icon">⚠️</span>
+                <div class="factor-desc">
+                  <strong>Database Migration</strong>
+                  <span>Adds new table <code>idempotency_keys</code> and FK index.</span>
+                </div>
+              </div>
+              <div class="factor-item safe">
+                <span class="factor-icon">🛡️</span>
+                <div class="factor-desc">
+                  <strong>No Breaking API Change</strong>
+                  <span>Existing Stripe webhook payload contract remains unchanged.</span>
+                </div>
+              </div>
+              <div class="factor-item safe">
+                <span class="factor-icon">🔒</span>
+                <div class="factor-desc">
+                  <strong>Egress Network Safe</strong>
+                  <span>No external outgoing network requests introduced.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Architectural Decision Record (ADR) -->
+          <div class="card detail-section">
+            <div class="section-title-bar">
+              <span class="section-icon">📐</span>
+              <h3 class="section-title">Architectural Solution Rationale</h3>
+              <span class="model-badge">Formulated by Antigravity (Gemini 3) via AST Index</span>
+            </div>
+            <div class="adr-content">
+              <p><strong>Strategy Chosen: Distributed DB-Level Unique Lock with In-Transaction Rollback</strong></p>
+              <p>Instead of relying solely on in-memory Node cache or application-level locks (which fail across multi-pod Kubernetes replicas), the agent will introduce an atomic <code>idempotency_keys</code> record inside a Postgres transaction.</p>
+              <ol class="adr-steps">
+                <li><strong>Step 1:</strong> Intercept webhook before business logic begins.</li>
+                <li><strong>Step 2:</strong> Attempt <code>INSERT INTO idempotency_keys (key, event_id, status) VALUES (...) ON CONFLICT (key) DO NOTHING</code>.</li>
+                <li><strong>Step 3:</strong> If row already exists with status <code>COMPLETED</code>, short-circuit immediately with HTTP 200 and return cached response payload.</li>
+                <li><strong>Step 4:</strong> If row insertion succeeds, execute credit transaction, then update idempotency key status to <code>COMPLETED</code> within same database unit-of-work.</li>
+              </ol>
+            </div>
+          </div>
+
+          <!-- Files to Create / Modify / Delete Table -->
+          <div class="card detail-section">
+            <div class="section-title-bar">
+              <span class="section-icon">📁</span>
+              <h3 class="section-title">Files Impact Manifest (4 files)</h3>
+              <span class="stats-counter text-mono">+142 lines / -18 lines</span>
+            </div>
+            
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Operation</th>
+                    <th>File Path</th>
+                    <th>Lines</th>
+                    <th>Technical Rationale</th>
+                    <th>Risk</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="file-state state-mod">MODIFY</span></td>
+                    <td class="font-mono text-cyan">prisma/schema.prisma</td>
+                    <td class="font-mono text-emerald">+24 / -0</td>
+                    <td>Define <code>IdempotencyKey</code> model with compound index on <code>[provider, eventId]</code>.</td>
+                    <td><span class="risk-badge risk-high">HIGH (DDL)</span></td>
+                  </tr>
+                  <tr>
+                    <td><span class="file-state state-add">CREATE</span></td>
+                    <td class="font-mono text-cyan">src/services/idempotency.ts</td>
+                    <td class="font-mono text-emerald">+68 / -0</td>
+                    <td>Implement <code>withIdempotencyLock()</code> wrapper function handling concurrent retries.</td>
+                    <td><span class="risk-badge risk-low">LOW</span></td>
+                  </tr>
+                  <tr>
+                    <td><span class="file-state state-mod">MODIFY</span></td>
+                    <td class="font-mono text-cyan">src/webhooks/stripe.ts</td>
+                    <td class="font-mono text-amber">+18 / -18</td>
+                    <td>Wrap Stripe webhook handler logic in the new idempotency guard.</td>
+                    <td><span class="risk-badge risk-med">MED</span></td>
+                  </tr>
+                  <tr>
+                    <td><span class="file-state state-add">CREATE</span></td>
+                    <td class="font-mono text-cyan">tests/webhook-idempotency.test.ts</td>
+                    <td class="font-mono text-emerald">+32 / -0</td>
+                    <td>Concurrent stress test firing 10 identical webhook calls using <code>vitest</code>.</td>
+                    <td><span class="risk-badge risk-low">LOW</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Action Gate Bar -->
+          <div class="card action-gate-footer">
+            <div class="gate-info">
+              <div class="gate-badge">
+                <span class="pulse-amber"></span>
+                <span>Awaiting Staff Engineer Sign-Off</span>
+              </div>
+              <p class="gate-desc">By approving, you authorize the Antigravity agent to create a local migration in the ephemeral test container and execute safe terminal commands.</p>
+            </div>
+            <div class="gate-btns">
+              <button class="btn btn-secondary" onclick="app.showRequestChangesModal()">Request Plan Changes</button>
+              <button class="btn btn-primary" onclick="app.showApprovePlanModal()">Approve Plan & Launch Execution (A)</button>
+            </div>
+          </div>
+        </article>
+
+        <!-- SCREEN 4: AGENT EXECUTION CENTER -->
+        <article id="screen-agent-execution" class="screen-view">
+          <header class="screen-header">
+            <div>
+              <div class="breadcrumbs">
+                <span>PAY-1429</span> / <span class="text-cyan">RUNTIME SANDBOX</span>
+              </div>
+              <div class="ticket-heading-row">
+                <span class="live-pill" id="live-runtime-pill"><span class="pulse-dot"></span> RUNTIME: ANTIGRAVITY (GEMINI 3)</span>
+                <h1 class="screen-title">Agent Execution Center</h1>
+              </div>
+            </div>
+            <div class="header-actions">
+              <button class="btn btn-secondary" id="btn-escalate-trigger" onclick="app.simulateEscalateToCursor()" title="Simulate automatic fallback to Cursor Agent">
+                ⚡ Force Escalate to Cursor
+              </button>
+              <button class="btn btn-secondary" id="btn-pause-agent" onclick="app.toggleAgentPause()">
+                <span id="pause-icon">⏸</span> <span id="pause-text">Pause Agent (Space)</span>
+              </button>
+              <button class="btn btn-danger-outline" onclick="app.abortAgentRun()">
+                ■ Abort Run
+              </button>
+              <button class="btn btn-primary" onclick="app.navigateTo('code-changes')">
+                View Diffs (5) →
+              </button>
+            </div>
+          </header>
+
+          <!-- Execution Telemetry Strip (with Real-time Cost & Runtime) -->
+          <div class="telemetry-strip">
+            <div class="telemetry-item">
+              <span class="t-label">CURRENT SUB-TASK</span>
+              <strong class="t-value text-cyan" id="exec-subtask">Step 4/7: Applying Prisma DDL migration in container</strong>
+            </div>
+            <div class="telemetry-item">
+              <span class="t-label">ASSIGNED RUNTIME</span>
+              <span class="t-value font-mono text-cyan" id="exec-runtime-name">Antigravity (agy-worker-04)</span>
+            </div>
+            <div class="telemetry-item">
+              <span class="t-label">COMPUTE COST ACCRUED</span>
+              <span class="t-value font-mono text-emerald" id="exec-cost">$0.038 <span class="text-dim">/ $0.50 cap</span></span>
+            </div>
+            <div class="telemetry-item">
+              <span class="t-label">EXECUTION TIME</span>
+              <span class="t-value font-mono" id="exec-timer">00:08:42</span>
+            </div>
+          </div>
+
+          <!-- Split Workbench: Reasoning Trajectory (Left) vs Live Shell Output (Right) -->
+          <div class="terminal-split-workbench">
+            
+            <!-- Left: Agent Thought & Tool Calls Stream -->
+            <div class="workbench-panel card">
+              <div class="panel-header">
+                <div class="panel-title-wrap">
+                  <span class="reason-icon">🧠</span>
+                  <h3 class="panel-title">Agent Reasoning & Tool Calls</h3>
+                </div>
+                <span class="badge-subtle" id="thought-model-tag">Model: Gemini 3 Thinking</span>
+              </div>
+
+              <div class="thought-stream-scroll" id="thought-stream">
+                
+                <div class="thought-card done">
+                  <div class="thought-meta">
+                    <span class="step-num">Step 1</span>
+                    <span class="tool-tag">tool: read_file</span>
+                    <span class="time font-mono">00:01:12</span>
+                  </div>
+                  <div class="thought-body">
+                    <p class="thought-reasoning">"I need to inspect the current Stripe webhook handler to see where ledger credit commits occur and how duplicate payloads are received."</p>
+                    <div class="tool-call-box">
+                      <code>read_file(path: "src/webhooks/stripe.ts", lines: 1-120)</code>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="thought-card done">
+                  <div class="thought-meta">
+                    <span class="step-num">Step 2</span>
+                    <span class="tool-tag">tool: write_file</span>
+                    <span class="time font-mono">00:03:45</span>
+                  </div>
+                  <div class="thought-body">
+                    <p class="thought-reasoning">"Creating the dedicated idempotency service helper with transactional row-level isolation."</p>
+                    <div class="tool-call-box">
+                      <code>write_file(path: "src/services/idempotency.ts")</code>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="thought-card done">
+                  <div class="thought-meta">
+                    <span class="step-num">Step 3</span>
+                    <span class="tool-tag">tool: replace_file_content</span>
+                    <span class="time font-mono">00:05:20</span>
+                  </div>
+                  <div class="thought-body">
+                    <p class="thought-reasoning">"Appending IdempotencyKey model into Prisma schema with compound unique constraint on provider and eventId."</p>
+                    <div class="tool-call-box">
+                      <code>replace_file_content(path: "prisma/schema.prisma", +24 lines)</code>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="thought-card active" id="current-thought-card">
+                  <div class="thought-meta">
+                    <span class="step-num text-cyan">Step 4 (Active)</span>
+                    <span class="tool-tag tag-cyan">tool: exec_command</span>
+                    <span class="time font-mono text-cyan">00:08:42</span>
+                  </div>
+                  <div class="thought-body">
+                    <p class="thought-reasoning">"Running Prisma migration generation in ephemeral Postgres container to ensure DDL migration executes without locking conflicts."</p>
+                    <div class="tool-call-box active-pulse">
+                      <code>run_command(cmd: "npx prisma migrate dev --name add_idempotency_keys")</code>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Human Interactive Steer Input -->
+              <div class="agent-steer-bar">
+                <input type="text" id="agent-steer-input" class="steer-input" placeholder="Inject steer instruction or constraint to running agent (e.g. 'Use 5s lock timeout')...">
+                <button class="btn btn-sm btn-primary" onclick="app.sendSteerCommand()">Send Prompt</button>
+              </div>
+            </div>
+
+            <!-- Right: Real-time Terminal Output -->
+            <div class="workbench-panel card terminal-panel">
+              <div class="terminal-header">
+                <div class="terminal-dots">
+                  <span></span><span></span><span></span>
+                </div>
+                <div class="terminal-title">bash sandbox-container: /workspace/acme-corp/payment-service</div>
+                <div class="terminal-actions">
+                  <span class="ansi-badge">ANSI Live</span>
+                  <button class="btn-term-clear" onclick="app.clearTerminal()">Clear</button>
+                </div>
+              </div>
+
+              <div class="terminal-body" id="live-terminal-body">
+                <pre class="term-pre"><code><span class="term-dim">[00:01:05]</span> <span class="term-cyan">antigravity-orchestrator</span> initialized container sandbox (cgroup isolation: enabled)
+<span class="term-dim">[00:01:08]</span> <span class="term-dim">Policy Engine:</span> Dispatched to Antigravity (Gemini 3) • Tier 1 Budget Allocated ($0.20 cap)
+<span class="term-dim">[00:01:10]</span> $ git checkout -b feat/PAY-1429-idempotency
+<span class="term-green">Switched to a new branch 'feat/PAY-1429-idempotency'</span>
+<span class="term-dim">[00:03:40]</span> $ cat << 'EOF' > src/services/idempotency.ts
+<span class="term-dim">[00:05:15]</span> Patching prisma/schema.prisma... OK (+24 lines)
+<span class="term-dim">[00:07:30]</span> $ npx prisma validate
+The schema is valid! ✨
+<span class="term-dim">[00:08:10]</span> $ npx prisma migrate dev --name add_idempotency_keys
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "payment_dev", schema "public" at "localhost:5432"
+
+Applying migration `20261005232410_add_idempotency_keys`
+<span class="term-green">✔ Generated Prisma Client (v5.12.0) to ./node_modules/@prisma/client in 84ms</span>
+<span class="term-green">✔ Migration applied successfully</span>
+
+<span class="term-dim">[00:08:35]</span> $ npm run test:unit -- src/services/idempotency.test.ts
+<span class="term-yellow">RUN</span>  v1.4.0 /workspace/payment-service
+<span class="term-green">✓</span> src/services/idempotency.test.ts (6 tests passed)
+<span class="term-dim">[00:08:42]</span> <span class="term-cyan">AGY Worker:</span> Next sub-task ready -> patching `src/webhooks/stripe.ts` with lock wrapper...
+<span class="term-cursor">█</span></code></pre>
+              </div>
+
+              <div class="terminal-footer">
+                <span class="text-muted">Exit code: 0</span>
+                <span class="text-muted font-mono">PID 4192 | RAM: 342MB | Compute Cost: $0.038</span>
+              </div>
+            </div>
+
+          </div>
+        </article>
+
+        <!-- SCREEN 5: CODE CHANGES & DIFF VIEWER -->
+        <article id="screen-code-changes" class="screen-view">
+          <header class="screen-header">
+            <div>
+              <div class="breadcrumbs">
+                <span>PAY-1429</span> / <span class="text-cyan">CODE CHANGES</span>
+              </div>
+              <h1 class="screen-title">Unified Code Diff & Agent Reasoning</h1>
+              <p class="screen-subtitle">Inspect precise line changes, AST transformations, and inline justifications linked to Jira acceptance criteria.</p>
+            </div>
+            <div class="header-actions">
+              <div class="view-toggle-group">
+                <button class="toggle-btn active" id="diff-unified-btn">Unified</button>
+                <button class="toggle-btn" id="diff-split-btn">Split</button>
+              </div>
+              <button class="btn btn-secondary" onclick="app.navigateTo('agent-execution')">← Back to Agent</button>
+              <button class="btn btn-primary" onclick="app.navigateTo('testing')">Run Verification Suite →</button>
+            </div>
+          </header>
+
+          <div class="diff-workbench-grid">
+            
+            <!-- Left: Files Tree -->
+            <div class="diff-file-tree card">
+              <div class="tree-header">
+                <span class="tree-title">Changed Files (4)</span>
+                <span class="stats-pill text-mono">+142 / -18</span>
+              </div>
+              <div class="tree-list">
+                <div class="tree-item active" onclick="app.selectDiffFile('schema')">
+                  <span class="file-state state-mod">M</span>
+                  <div class="tree-item-info">
+                    <span class="file-name">prisma/schema.prisma</span>
+                    <span class="diff-counts"><span class="text-emerald">+24</span> <span class="text-muted">-0</span></span>
+                  </div>
+                </div>
+
+                <div class="tree-item" onclick="app.selectDiffFile('idempotency')">
+                  <span class="file-state state-add">A</span>
+                  <div class="tree-item-info">
+                    <span class="file-name">src/services/idempotency.ts</span>
+                    <span class="diff-counts"><span class="text-emerald">+68</span> <span class="text-muted">-0</span></span>
+                  </div>
+                </div>
+
+                <div class="tree-item" onclick="app.selectDiffFile('webhook')">
+                  <span class="file-state state-mod">M</span>
+                  <div class="tree-item-info">
+                    <span class="file-name">src/webhooks/stripe.ts</span>
+                    <span class="diff-counts"><span class="text-emerald">+18</span> <span class="text-red">-18</span></span>
+                  </div>
+                </div>
+
+                <div class="tree-item" onclick="app.selectDiffFile('test')">
+                  <span class="file-state state-add">A</span>
+                  <div class="tree-item-info">
+                    <span class="file-name">tests/webhook.test.ts</span>
+                    <span class="diff-counts"><span class="text-emerald">+32</span> <span class="text-muted">-0</span></span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Commit Preview Box -->
+              <div class="commit-preview-box">
+                <span class="box-title">Generated Commit Message</span>
+                <pre class="commit-msg-pre"><code>feat(webhooks): enforce idempotency for stripe events
+
+- Add IdempotencyKey model in Prisma
+- Implement withIdempotencyLock() helper
+- Prevent duplicate ledger credit transactions
+- Fixes PAY-1429
+- Orchestrated by Graviton (Runtime: Antigravity)</code></pre>
+              </div>
+            </div>
+
+            <!-- Right: Syntax Highlighted Diff Viewer -->
+            <div class="diff-viewer-panel card">
+              <div class="diff-header-bar">
+                <div class="file-identity">
+                  <span class="file-icon">📄</span>
+                  <strong class="font-mono text-cyan" id="diff-active-filename">prisma/schema.prisma</strong>
+                  <span class="badge-subtle">PostgreSQL DDL Model</span>
+                </div>
+                <div class="agent-annotation-badge">
+                  <span class="ai-sparkle">✨</span> Agent Justification: Satisfies Jira AC-1
+                </div>
+              </div>
+
+              <!-- AI Inline Note -->
+              <div class="inline-ai-note">
+                <div class="note-avatar">α</div>
+                <div class="note-content">
+                  <strong>Antigravity Reasoning:</strong>
+                  <span>"Added compound unique constraint <code>@@unique([provider, eventId])</code> to guarantee database-level atomic rejection of racing webhook retry packets."</span>
+                </div>
+              </div>
+
+              <!-- Diff Editor Content -->
+              <div class="diff-lines-container" id="diff-lines-display">
+                <div class="diff-line ctx"><span class="ln">48</span><span class="code">model Customer {</span></div>
+                <div class="diff-line ctx"><span class="ln">49</span><span class="code">  id        String   @id @default(uuid())</span></div>
+                <div class="diff-line ctx"><span class="ln">50</span><span class="code">  email     String   @unique</span></div>
+                <div class="diff-line ctx"><span class="ln">51</span><span class="code">}</span></div>
+                <div class="diff-line ctx"><span class="ln">52</span><span class="code"></span></div>
+                <div class="diff-line hunk-header"><span class="ln">@@</span><span class="code">@@ -53,0 +54,24 @@ model IdempotencyKey</span></div>
+                <div class="diff-line add"><span class="ln">54</span><span class="code">+model IdempotencyKey {</span></div>
+                <div class="diff-line add"><span class="ln">55</span><span class="code">+  id          String   @id @default(cuid())</span></div>
+                <div class="diff-line add"><span class="ln">56</span><span class="code">+  provider    String   // e.g. "stripe"</span></div>
+                <div class="diff-line add"><span class="ln">57</span><span class="code">+  eventId     String</span></div>
+                <div class="diff-line add"><span class="ln">58</span><span class="code">+  status      String   // "PENDING" | "COMPLETED" | "FAILED"</span></div>
+                <div class="diff-line add"><span class="ln">59</span><span class="code">+  response    Json?</span></div>
+                <div class="diff-line add"><span class="ln">60</span><span class="code">+  createdAt   DateTime @default(now())</span></div>
+                <div class="diff-line add"><span class="ln">61</span><span class="code">+  updatedAt   DateTime @updatedAt</span></div>
+                <div class="diff-line add"><span class="ln">62</span><span class="code">+</span></div>
+                <div class="diff-line add"><span class="ln">63</span><span class="code">+  @@unique([provider, eventId])</span></div>
+                <div class="diff-line add"><span class="ln">64</span><span class="code">+  @@index([createdAt])</span></div>
+                <div class="diff-line add"><span class="ln">65</span><span class="code">+}</span></div>
+              </div>
+            </div>
+
+          </div>
+        </article>
+
+        <!-- SCREEN 6: TESTING & BROWSER VERIFICATION -->
+        <article id="screen-testing" class="screen-view">
+          <header class="screen-header">
+            <div>
+              <div class="breadcrumbs">
+                <span>PAY-1429</span> / <span class="text-emerald">VERIFICATION PIPELINE</span>
+              </div>
+              <h1 class="screen-title">Automated Testing & Browser UI Verification</h1>
+              <p class="screen-subtitle">Comprehensive verification matrix proving acceptance criteria are fully met prior to final Jira synchronization.</p>
+            </div>
+            <div class="header-actions">
+              <button class="btn btn-secondary" id="btn-re-run-tests" onclick="app.simulateRunAllTests()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                Re-Run Verification
+              </button>
+              <button class="btn btn-primary" onclick="app.navigateTo('completion')">Proceed to Completion →</button>
+            </div>
+          </header>
+
+          <!-- 4-Stage Test Pipeline Pill Row -->
+          <div class="pipeline-pill-row">
+            <div class="pipeline-card passed">
+              <div class="pipe-top">
+                <span class="pipe-name">1. Build & Types</span>
+                <span class="badge-pipe-success">PASS</span>
+              </div>
+              <div class="pipe-metric font-mono">tsc --noEmit (0 err)</div>
+              <span class="pipe-duration font-mono">4.1s</span>
+            </div>
+
+            <div class="pipeline-card passed">
+              <div class="pipe-top">
+                <span class="pipe-name">2. Linter & AST</span>
+                <span class="badge-pipe-success">PASS</span>
+              </div>
+              <div class="pipe-metric font-mono">eslint (0 warnings)</div>
+              <span class="pipe-duration font-mono">1.8s</span>
+            </div>
+
+            <div class="pipeline-card passed">
+              <div class="pipe-top">
+                <span class="pipe-name">3. Unit Tests</span>
+                <span class="badge-pipe-success">PASS</span>
+              </div>
+              <div class="pipe-metric font-mono">vitest (42/42 passed)</div>
+              <span class="pipe-duration font-mono">3.4s</span>
+            </div>
+
+            <div class="pipeline-card passed">
+              <div class="pipe-top">
+                <span class="pipe-name">4. Browser Subagent</span>
+                <span class="badge-pipe-success">VERIFIED</span>
+              </div>
+              <div class="pipe-metric font-mono">Playwright session</div>
+              <span class="pipe-duration font-mono">8.2s</span>
+            </div>
+          </div>
+
+          <!-- Split Verification: Browser Replay Session vs Jira AC Proof Checklist -->
+          <div class="verification-split-grid">
+            
+            <!-- Left: Browser Subagent Video Replay & Session Logs -->
+            <div class="card verification-browser-player">
+              <div class="panel-header">
+                <div class="panel-title-wrap">
+                  <span class="browser-icon">🌐</span>
+                  <h3 class="panel-title">Browser Subagent Replay</h3>
+                </div>
+                <span class="badge-subtle">Playwright Headless Recording (WebP)</span>
+              </div>
+
+              <!-- Interactive Simulated Browser Viewport -->
+              <div class="browser-mockup">
+                <div class="browser-topbar">
+                  <div class="browser-dots">
+                    <span></span><span></span><span></span>
+                  </div>
+                  <div class="browser-url-input">
+                    <span class="lock-icon">🔒</span>
+                    <span class="url-text">https://billing-admin.internal/webhooks/simulator</span>
+                  </div>
+                  <span class="rec-indicator"><span class="pulse-red"></span> REC</span>
+                </div>
+
+                <div class="browser-viewport-screen" id="browser-viewport-screen">
+                  <div class="simulated-app-ui">
+                    <div class="sim-header">
+                      <h4>Stripe Webhook Delivery Monitor</h4>
+                      <span class="sim-badge">Test Environment: staging-db</span>
+                    </div>
+                    <div class="sim-test-card">
+                      <div class="sim-row">
+                        <span>Event ID:</span>
+                        <code>evt_3NhYk2LkdIwHu7ix0</code>
+                      </div>
+                      <div class="sim-row">
+                        <span>Concurrent Requests Dispatched:</span>
+                        <strong class="text-cyan">10 parallel POSTs</strong>
+                      </div>
+                      <div class="sim-results-grid">
+                        <div class="sim-stat">
+                          <span class="sim-stat-label">Processed (200 OK)</span>
+                          <span class="sim-stat-val text-emerald">1 (idempotency leader)</span>
+                        </div>
+                        <div class="sim-stat">
+                          <span class="sim-stat-label">Duplicate Acknowledged (200 Cached)</span>
+                          <span class="sim-stat-val text-cyan">9 (fast cache hits)</span>
+                        </div>
+                        <div class="sim-stat">
+                          <span class="sim-stat-label">Duplicate Ledger Credits</span>
+                          <span class="sim-stat-val text-emerald">0 (No duplicate!)</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="sim-pointer-cursor" id="sim-cursor">👆 Subagent Clicked "Send Batch"</div>
+                  </div>
+                </div>
+
+                <div class="video-controls-bar">
+                  <button class="btn-play-pause" id="btn-replay-browser" onclick="app.replayBrowserSession()">
+                    <span id="play-btn-icon">▶</span> Replay Session
+                  </button>
+                  <div class="video-progress-track">
+                    <div class="video-progress-bar" id="browser-video-progress" style="width: 100%;"></div>
+                  </div>
+                  <span class="video-timer font-mono">00:08.20 / 00:08.20</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right: Acceptance Criteria Automated Verification -->
+            <div class="card verification-checklist-panel">
+              <div class="panel-header">
+                <h3 class="panel-title">Jira Acceptance Criteria Verification</h3>
+                <span class="badge-emerald-count">3 of 3 Verified</span>
+              </div>
+
+              <div class="evidence-list">
+                <div class="evidence-card verified">
+                  <div class="evidence-top">
+                    <span class="evidence-check">✓</span>
+                    <strong>AC-1: Dedicated Idempotency Schema</strong>
+                  </div>
+                  <p class="evidence-text">Prisma schema contains <code>IdempotencyKey</code> model with compound unique key. Migration executed clean.</p>
+                  <div class="evidence-proof font-mono">
+                    Proof: <code>PrismaMigrateExitCode == 0</code>
+                  </div>
+                </div>
+
+                <div class="evidence-card verified">
+                  <div class="evidence-top">
+                    <span class="evidence-check">✓</span>
+                    <strong>AC-2: HTTP 200 Fast Return on Duplicates</strong>
+                  </div>
+                  <p class="evidence-text">Unit test confirmed handler returns cached JSON within 12ms without triggering ledger service.</p>
+                  <div class="evidence-proof font-mono">
+                    Proof: <code>test('duplicate webhook returns 200') - PASS</code>
+                  </div>
+                </div>
+
+                <div class="evidence-card verified">
+                  <div class="evidence-top">
+                    <span class="evidence-check">✓</span>
+                    <strong>AC-3: Concurrent Stress Test (10 requests)</strong>
+                  </div>
+                  <p class="evidence-text">Browser subagent simulated 10 concurrent webhook events. Verified ledger credited exactly once.</p>
+                  <div class="evidence-proof font-mono">
+                    Proof: <code>LedgerEntries.count === 1</code>
+                  </div>
+                </div>
+              </div>
+
+              <div class="quality-gate-footer">
+                <div class="qg-item">
+                  <span class="qg-label">Test Coverage</span>
+                  <strong class="text-emerald">98.4% on diff</strong>
+                </div>
+                <div class="qg-item">
+                  <span class="qg-label">Security Scan</span>
+                  <strong class="text-emerald">0 Vulnerabilities</strong>
+                </div>
+                <div class="qg-item">
+                  <span class="qg-label">Quality Gate</span>
+                  <strong class="text-emerald">PASSED (A+)</strong>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </article>
+
+        <!-- SCREEN 7: COMPLETION & JIRA BI-DIRECTIONAL UPDATE -->
+        <article id="screen-completion" class="screen-view">
+          <header class="screen-header">
+            <div>
+              <div class="breadcrumbs">
+                <span>PAY-1429</span> / <span class="text-emerald">COMPLETION & SYNC</span>
+              </div>
+              <h1 class="screen-title">Task Verification & Jira Bi-Directional Synchronization</h1>
+              <p class="screen-subtitle">All tests passed. Publish Pull Request, update Jira ticket status, and post verification evidence.</p>
+            </div>
+            <div class="header-actions">
+              <button class="btn btn-secondary" onclick="app.navigateTo('dashboard')">Back to Dashboard</button>
+              <button class="btn btn-success" id="btn-sync-jira-final" onclick="app.triggerJiraSyncComplete()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                Sync to Jira & Open PR
+              </button>
+            </div>
+          </header>
+
+          <div class="completion-grid">
+            
+            <!-- Left: Executive Summary & PR Details -->
+            <div class="card completion-main-card">
+              <div class="completion-banner">
+                <div class="success-ring-big">✓</div>
+                <div class="banner-text">
+                  <h2>Task Execution Successfully Completed</h2>
+                  <p class="text-muted">Routed to <strong>Antigravity (Gemini 3)</strong> • Total Compute Cost: <strong class="text-emerald">$0.042</strong> (Saved $0.54 vs frontier model).</p>
+                </div>
+              </div>
+
+              <!-- PR Preview Card -->
+              <div class="pr-preview-card">
+                <div class="pr-header">
+                  <span class="github-badge">GitHub PR #342</span>
+                  <span class="pr-status-pill">Ready to Merge</span>
+                </div>
+                <h3 class="pr-title">feat(webhooks): idempotent webhook ingestion for Stripe charge events</h3>
+                <div class="pr-meta-row font-mono">
+                  <span>Branch: <code>feat/PAY-1429-idempotency</code></span>
+                  <span>Base: <code>main</code></span>
+                  <span>Commit: <code>f81b3c9</code></span>
+                </div>
+                <div class="pr-checklist-summary">
+                  <span>✔ 4 files changed (+142, -18 lines)</span>
+                  <span>✔ 42 unit & integration tests passing</span>
+                  <span>✔ Browser UI video recording attached</span>
+                  <span>✔ FinOps: $0.042 compute spend logged</span>
+                </div>
+              </div>
+
+              <!-- Jira Ticket Payload Preview (Includes Orchestrator Metadata) -->
+              <div class="jira-payload-box">
+                <div class="payload-header">
+                  <span class="box-title">Jira Bi-Directional Sync Payload (Outgoing)</span>
+                  <span class="payload-endpoint text-mono">POST /rest/api/3/issue/PAY-1429</span>
+                </div>
+                <pre class="payload-json"><code>{
+  "transition": { "id": "31", "name": "In Review" },
+  "update": {
+    "comment": [{
+      "add": {
+        "body": "🤖 [Graviton Orchestrator] Task completed & verified.\n- Runtime: Antigravity (Gemini 3)\n- Compute Cost: $0.042\n- PR: https://github.com/acme-corp/payment-service/pull/342\n- Tests: 42 passed (100%)\n- Verification Evidence: attached\n- Idempotency verified under 10 concurrent requests."
+      }
+    }],
+    "timetracking": [{ "add": { "timeSpent": "14m" } }]
+  },
+  "fields": {
+    "customfield_10042_agent_runtime": "antigravity-gemini-3",
+    "customfield_10043_cost_usd": 0.042
+  }
+}</code></pre>
+              </div>
+            </div>
+
+            <!-- Right: Action Station & Verification Bundle -->
+            <div class="completion-side-col">
+              
+              <div class="card meta-box">
+                <h4 class="meta-box-title">Audit Trail & Evidence Package</h4>
+                <div class="evidence-download-list">
+                  <div class="pkg-item">
+                    <span class="pkg-icon">📦</span>
+                    <div class="pkg-info">
+                      <span class="pkg-name">Full Git Diff Patch</span>
+                      <span class="pkg-size font-mono">14.2 KB (.patch)</span>
+                    </div>
+                  </div>
+                  <div class="pkg-item">
+                    <span class="pkg-icon">🎥</span>
+                    <div class="pkg-info">
+                      <span class="pkg-name">Playwright Video Session</span>
+                      <span class="pkg-size font-mono">1.8 MB (session.webp)</span>
+                    </div>
+                  </div>
+                  <div class="pkg-item">
+                    <span class="pkg-icon">📊</span>
+                    <div class="pkg-info">
+                      <span class="pkg-name">SonarQube Coverage Report</span>
+                      <span class="pkg-size font-mono">98.4% coverage</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card meta-box border-emerald">
+                <h4 class="meta-box-title text-emerald">Ready for Deployment</h4>
+                <p class="text-sm text-muted">This change is ready for continuous integration and can be synchronized directly into the team's Jira board.</p>
+                <div class="final-action-btns">
+                  <button class="btn btn-primary btn-block" onclick="app.triggerJiraSyncComplete()">
+                    Publish PR & Transition Jira
+                  </button>
+                  <button class="btn btn-secondary btn-block" onclick="app.showToast('Triggering staging deployment pipeline...')">
+                    Trigger Staging Canary Deploy
+                  </button>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </article>
+
+        <!-- SCREEN 8: POLICY ENGINE & PROVIDER MATRIX CONFIGURATION -->
+        <article id="screen-settings" class="screen-view">
+          <header class="screen-header">
+            <div>
+              <div class="breadcrumbs">SYSTEM CONFIGURATION / ORCHESTRATION</div>
+              <h1 class="screen-title">Policy Engine & Provider Matrix Configuration</h1>
+              <p class="screen-subtitle">Define automated routing rules, connect coding agent runtimes, and control FinOps budget caps.</p>
+            </div>
+            <div class="header-actions">
+              <button class="btn btn-secondary" onclick="app.testAllConnections()">Test All Runtimes</button>
+              <button class="btn btn-primary" onclick="app.saveSettings()">Save Policy Matrix</button>
+            </div>
+          </header>
+
+          <div class="settings-grid">
+            
+            <!-- Provider 1: Google Antigravity -->
+            <div class="card settings-section">
+              <div class="section-title-bar">
+                <span class="section-icon">⚡</span>
+                <h3 class="section-title">Runtime 1: Google Antigravity</h3>
+                <span class="badge-cyan font-mono">TIER 1 (HIGH EFFICIENCY)</span>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Gateway Endpoint</label>
+                <input type="text" class="form-input font-mono" value="grpc://antigravity.internal:8443">
+              </div>
+              <div class="form-row-2">
+                <div class="form-group">
+                  <label class="form-label">Primary Model</label>
+                  <select class="form-select font-mono">
+                    <option selected>Gemini 3 (Thinking Core)</option>
+                    <option>Gemini 3 Ultra (Max Reasoning)</option>
+                    <option>Gemini 2.5 Flash (Lightweight)</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Cost Rate</label>
+                  <input type="text" class="form-input font-mono" value="$0.04 - $0.10 / ticket" disabled>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Concurrency Slots</label>
+                <select class="form-select font-mono">
+                  <option>4 Workers (Current)</option>
+                  <option>8 Workers (Scale)</option>
+                  <option>16 Workers (Enterprise)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Provider 2: Cursor Agent (Headless) -->
+            <div class="card settings-section border-purple-subtle">
+              <div class="section-title-bar">
+                <span class="section-icon">🎯</span>
+                <h3 class="section-title">Runtime 2: Cursor Agent</h3>
+                <span class="badge-purple font-mono">TIER 2 (DEEP REASONING)</span>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Cursor Headless Daemon URL</label>
+                <input type="text" class="form-input font-mono" value="http://localhost:4040/cursor/v1">
+              </div>
+              <div class="form-row-2">
+                <div class="form-group">
+                  <label class="form-label">Model</label>
+                  <select class="form-select font-mono">
+                    <option selected>Claude 3.7 Sonnet (Thinking)</option>
+                    <option>Claude 3.5 Sonnet</option>
+                    <option>GPT-4o (Frontier)</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Cost Rate</label>
+                  <input type="text" class="form-input font-mono" value="$0.40 - $1.20 / ticket" disabled>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Role in Orchestration</label>
+                <input type="text" class="form-input" value="Escalation fallback & complex multi-file architectural bugs" disabled>
+              </div>
+            </div>
+
+            <!-- Policy Routing Rules Table -->
+            <div class="card settings-section full-width">
+              <div class="section-title-bar">
+                <span class="section-icon">⚖️</span>
+                <h3 class="section-title">Policy Routing Rules Engine (Jira → Runtime)</h3>
+                <span class="badge-emerald font-mono">4 RULES ACTIVE</span>
+              </div>
+              <p class="settings-desc">The Policy Engine evaluates these rules sequentially upon Jira webhook ingestion to determine runtime and model dispatch.</p>
+
+              <div class="table-container">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Priority</th>
+                      <th>Condition / Predicate</th>
+                      <th>Target Runtime</th>
+                      <th>Target Model</th>
+                      <th>Max Budget</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="font-mono text-cyan">1</td>
+                      <td><code>Issue.Type == "Bug" AND Priority == "Highest"</code></td>
+                      <td><span class="provider-pill pill-cursor">Cursor Agent</span></td>
+                      <td class="font-mono">Claude 3.7 Sonnet</td>
+                      <td class="font-mono text-amber">$1.50</td>
+                    </tr>
+                    <tr>
+                      <td class="font-mono text-cyan">2</td>
+                      <td><code>Components in ["DB", "Schema", "CRUD", "Fastify"]</code></td>
+                      <td><span class="provider-pill pill-antigravity">Antigravity</span></td>
+                      <td class="font-mono">Gemini 3 (Thinking)</td>
+                      <td class="font-mono text-emerald">$0.20</td>
+                    </tr>
+                    <tr>
+                      <td class="font-mono text-cyan">3</td>
+                      <td><code>StoryPoints <= 3 OR Labels in ["chore", "docs"]</code></td>
+                      <td><span class="provider-pill pill-antigravity">Antigravity</span></td>
+                      <td class="font-mono">Gemini 3 Flash</td>
+                      <td class="font-mono text-emerald">$0.10</td>
+                    </tr>
+                    <tr>
+                      <td class="font-mono text-cyan">4</td>
+                      <td><code>Fallback: If Tier 1 tests fail 2x</code></td>
+                      <td><span class="provider-pill pill-cursor">Auto-Escalate to Cursor</span></td>
+                      <td class="font-mono">Claude 3.7 Sonnet</td>
+                      <td class="font-mono text-amber">$0.80</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Agent Safety Guardrails Matrix -->
+            <div class="card settings-section full-width border-red-subtle">
+              <div class="section-title-bar">
+                <span class="section-icon">🛡️</span>
+                <h3 class="section-title">Human-in-the-Loop Safety Guardrails</h3>
+                <span class="badge-amber font-mono">STRICT ENFORCEMENT</span>
+              </div>
+              <div class="guardrails-matrix">
+                <div class="guardrail-toggle-row">
+                  <div class="gr-info">
+                    <strong>Database Schema Migrations (DDL)</strong>
+                    <p>Applies to all agents (Antigravity & Cursor). Mandatory human approval before applying migrations.</p>
+                  </div>
+                  <div class="gr-switch">
+                    <input type="checkbox" id="gate-db" checked>
+                    <label for="gate-db" class="switch-slider"></label>
+                  </div>
+                  <span class="gr-status-tag tag-strict">Mandatory Approval</span>
+                </div>
+
+                <div class="guardrail-toggle-row">
+                  <div class="gr-info">
+                    <strong>Destructive Operations (rm -rf, git force-push)</strong>
+                    <p>Blocked across all agent runtimes unconditionally.</p>
+                  </div>
+                  <div class="gr-switch">
+                    <input type="checkbox" id="gate-destructive" checked disabled>
+                    <label for="gate-destructive" class="switch-slider"></label>
+                  </div>
+                  <span class="gr-status-tag tag-blocked">Always Blocked</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </article>
+
+      </main>
+
+    </div>
+
+    <!-- Bottom Developer Status Bar -->
+    <footer id="desktop-statusbar" class="statusbar">
+      <div class="statusbar-left">
+        <span class="sb-item"><span class="git-branch-icon">⎇</span> feat/PAY-1429-idempotency</span>
+        <span class="sb-item text-muted">|</span>
+        <span class="sb-item font-mono text-cyan">Runtime: Antigravity (Gemini 3)</span>
+        <span class="sb-item text-muted">|</span>
+        <span class="sb-item font-mono text-purple">Standby: Cursor (Ready)</span>
+      </div>
+      <div class="statusbar-center">
+        <span class="sb-item font-mono text-muted">Ctrl+K: Palette • 1-8: Switch Screens • Space: Pause Agent</span>
+      </div>
+      <div class="statusbar-right">
+        <span class="sb-item font-mono">Jira Ping: <strong>14ms</strong></span>
+        <span class="sb-item font-mono text-emerald">MTD Saved: <strong>$418.20</strong></span>
+        <span class="sb-item font-mono text-emerald">Audit: SECURE</span>
+      </div>
+    </footer>
+
+    <!-- MODAL 1: APPROVE PLAN & GRANT PERMISSIONS -->
+    <div id="modal-approve-plan" class="modal-backdrop">
+      <div class="modal-dialog">
+        <div class="modal-header border-amber">
+          <div class="modal-title-wrap">
+            <span class="modal-icon text-amber">⚠️</span>
+            <h3>Approve AI Implementation Plan: PAY-1429</h3>
+          </div>
+          <button class="modal-close-btn" onclick="app.closeModals()">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="modal-alert-box">
+            <strong>High Risk Operation Detected (Antigravity Runtime):</strong>
+            <p>This plan introduces a relational PostgreSQL migration in <code>prisma/schema.prisma</code> (table: <code>IdempotencyKey</code>).</p>
+          </div>
+          <div class="modal-checklist">
+            <h4>Confirmation Requirements:</h4>
+            <label class="modal-chk-label">
+              <input type="checkbox" id="chk-verify-schema" checked>
+              <span>I have inspected the DDL schema changes and verified index efficiency.</span>
+            </label>
+            <label class="modal-chk-label">
+              <input type="checkbox" id="chk-verify-sandbox" checked>
+              <span>Authorize Antigravity agent to execute <code>npx prisma migrate dev</code> in container.</span>
+            </label>
+            <label class="modal-chk-label">
+              <input type="checkbox" id="chk-verify-budget" checked>
+              <span>Authorize compute budget: $0.04 (Max $0.20 cap).</span>
+            </label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="app.closeModals()">Cancel</button>
+          <button class="btn btn-primary" onclick="app.confirmPlanApproval()">
+            Confirm Sign-Off & Launch Agent
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL 2: REQUEST CHANGES / AGENT STEER -->
+    <div id="modal-request-changes" class="modal-backdrop">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <div class="modal-title-wrap">
+            <span class="modal-icon text-cyan">✏️</span>
+            <h3>Request Plan Changes: PAY-1429</h3>
+          </div>
+          <button class="modal-close-btn" onclick="app.closeModals()">✕</button>
+        </div>
+        <div class="modal-body">
+          <p class="modal-p">Provide prompt instructions to the active agent runtime. The orchestrator will re-analyze the AST and re-generate the proposal.</p>
+          <div class="form-group">
+            <label class="form-label">Architectural Feedback / Constraints</label>
+            <textarea id="request-change-textarea" class="form-textarea" rows="4" placeholder="e.g. Please use Redis distributed lock via Redlock algorithm instead of PostgreSQL database table to avoid DB connection pool saturation..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="app.closeModals()">Cancel</button>
+          <button class="btn btn-primary" onclick="app.submitPlanChanges()">Submit Feedback</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL 3: COMMAND PALETTE (Ctrl+K) -->
+    <div id="modal-cmd-palette" class="modal-backdrop">
+      <div class="modal-palette-dialog">
+        <div class="palette-input-wrap">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" id="palette-search-input" class="palette-input" placeholder="Type a screen (1-8), Jira ticket key, runtime switch, or action..." autocomplete="off">
+          <kbd class="kbd-subtle">ESC to exit</kbd>
+        </div>
+        <div class="palette-results-list" id="palette-results-list">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
