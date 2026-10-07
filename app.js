@@ -449,6 +449,40 @@ class AntigravityApp {
     // Quick Settings button
     const quickSettings = document.getElementById('quick-settings-btn');
     if (quickSettings) quickSettings.addEventListener('click', () => this.navigateTo('settings'));
+
+    // Mobile Navigation Drawer Toggle
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    if (mobileMenuBtn) {
+      mobileMenuBtn.addEventListener('click', () => this.toggleMobileSidebar());
+    }
+
+    const sidebarCloseBtn = document.getElementById('sidebar-close-btn');
+    if (sidebarCloseBtn) {
+      sidebarCloseBtn.addEventListener('click', () => this.closeMobileSidebar());
+    }
+
+    const sidebarOverlay = document.getElementById('sidebar-overlay');
+    if (sidebarOverlay) {
+      sidebarOverlay.addEventListener('click', () => this.closeMobileSidebar());
+    }
+  }
+
+  toggleMobileSidebar() {
+    const sidebar = document.getElementById('main-sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    const btn = document.getElementById('mobile-menu-btn');
+    if (sidebar) sidebar.classList.toggle('mobile-open');
+    if (overlay) overlay.classList.toggle('active');
+    if (btn) btn.classList.toggle('open');
+  }
+
+  closeMobileSidebar() {
+    const sidebar = document.getElementById('main-sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    const btn = document.getElementById('mobile-menu-btn');
+    if (sidebar) sidebar.classList.remove('mobile-open');
+    if (overlay) overlay.classList.remove('active');
+    if (btn) btn.classList.remove('open');
   }
 
   // Multi-Ticket Context Switching
@@ -696,6 +730,7 @@ class AntigravityApp {
 
     this.currentScreen = screenId;
     this.updateWorkflowStepper(screenId);
+    this.closeMobileSidebar();
     targetScreen.scrollTop = 0;
   }
 

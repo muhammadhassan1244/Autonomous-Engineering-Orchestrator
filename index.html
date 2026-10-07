@@ -17,6 +17,11 @@
     <!-- Top System Titlebar (Electron/Desktop Frame look) -->
     <header id="desktop-titlebar" class="titlebar">
       <div class="titlebar-left">
+        <button id="mobile-menu-btn" class="mobile-menu-btn" title="Toggle Navigation Menu" aria-label="Toggle Navigation Menu">
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+        </button>
         <div class="window-controls">
           <span class="control close"></span>
           <span class="control minimize"></span>
@@ -71,8 +76,21 @@
     <!-- Main App Container: Sidebar + Workflow Stepper + Content -->
     <div class="workspace-body">
       
+      <!-- Backdrop overlay for mobile navigation drawer -->
+      <div id="sidebar-overlay" class="sidebar-overlay" onclick="app.closeMobileSidebar()"></div>
+
       <!-- Primary Navigation Sidebar -->
       <aside id="main-sidebar" class="sidebar">
+        <div class="sidebar-mobile-header">
+          <div class="sidebar-mobile-brand">
+            <svg class="brand-logo" viewBox="0 0 24 24" width="16" height="16" fill="none">
+              <path d="M12 2L2 19.5H22L12 2Z" stroke="#00e5ff" stroke-width="2" stroke-linejoin="round"/>
+              <circle cx="12" cy="13" r="3" fill="#2684ff"/>
+            </svg>
+            <span>GRAVITON</span>
+          </div>
+          <button id="sidebar-close-btn" class="sidebar-close-btn" onclick="app.closeMobileSidebar()" aria-label="Close Navigation">✕</button>
+        </div>
         <div class="sidebar-section-title">ORCHESTRATOR</div>
         <nav class="sidebar-nav">
           <button class="nav-item active" data-screen="dashboard" id="nav-dashboard">

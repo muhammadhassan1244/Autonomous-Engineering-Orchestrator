@@ -3199,3 +3199,537 @@ html, body {
   background: linear-gradient(180deg, rgba(0, 229, 255, 0.04), rgba(21, 25, 36, 0.8));
 }
 
+/* ==========================================================================
+   RESPONSIVE DESIGN SYSTEM (MOBILE, TABLET, AND DESKTOP VIEWPORTS)
+   ========================================================================== */
+
+/* Mobile Menu Button (Titlebar hamburger toggle) */
+.mobile-menu-btn {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  width: 30px;
+  height: 30px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  padding: 5px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.mobile-menu-btn:hover,
+.mobile-menu-btn:focus-visible {
+  background: rgba(0, 229, 255, 0.12);
+  border-color: var(--border-active);
+  outline: none;
+}
+
+.mobile-menu-btn .bar {
+  display: block;
+  width: 15px;
+  height: 2px;
+  background-color: var(--text-main);
+  border-radius: 2px;
+  transition: transform 0.25s ease, opacity 0.2s ease;
+}
+
+.mobile-menu-btn.open .bar:nth-child(1) {
+  transform: translateY(6px) rotate(45deg);
+}
+
+.mobile-menu-btn.open .bar:nth-child(2) {
+  opacity: 0;
+}
+
+.mobile-menu-btn.open .bar:nth-child(3) {
+  transform: translateY(-6px) rotate(-45deg);
+}
+
+/* Sidebar Mobile Header & Close Button */
+.sidebar-mobile-header {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.sidebar-mobile-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+  font-size: 13px;
+  color: #ffffff;
+  letter-spacing: 0.08em;
+}
+
+.sidebar-close-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sidebar-close-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #ff5f56;
+}
+
+/* Backdrop Overlay for Mobile Navigation Drawer */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  top: var(--titlebar-height);
+  background: rgba(8, 9, 13, 0.75);
+  backdrop-filter: blur(4px);
+  z-index: 899;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.sidebar-overlay.active {
+  display: block;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* --------------------------------------------------------------------------
+   BREAKPOINT 1: LARGE TABLETS / COMPACT DESKTOPS (<= 1200px)
+   -------------------------------------------------------------------------- */
+@media screen and (max-width: 1200px) {
+  .metric-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .pipeline-pill-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .command-search-trigger {
+    min-width: 280px;
+    max-width: 360px;
+  }
+
+  .dashboard-split-layout {
+    grid-template-columns: 1.3fr 1fr;
+    gap: 16px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   BREAKPOINT 2: TABLETS & MOBILE DRAWER TRANSFORMATION (<= 1024px)
+   -------------------------------------------------------------------------- */
+@media screen and (max-width: 1024px) {
+  .mobile-menu-btn {
+    display: flex;
+  }
+
+  .window-controls {
+    display: none;
+  }
+
+  .titlebar {
+    padding: 0 10px;
+  }
+
+  .command-search-trigger {
+    min-width: 180px;
+    max-width: 260px;
+    padding: 3px 8px;
+    font-size: 11.5px;
+  }
+
+  .command-search-trigger .kbd-shortcut {
+    display: none;
+  }
+
+  .workspace-body {
+    position: relative;
+    width: 100vw;
+  }
+
+  /* Transform Sidebar into an Off-Canvas Drawer */
+  .sidebar {
+    position: fixed;
+    top: var(--titlebar-height);
+    left: -320px;
+    width: 280px;
+    min-width: 280px;
+    height: calc(100vh - var(--titlebar-height) - var(--statusbar-height));
+    z-index: 900;
+    box-shadow: 10px 0 35px rgba(0, 0, 0, 0.75);
+    transition: left 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    background-color: var(--bg-sidebar);
+    border-right: 1px solid var(--border-medium);
+  }
+
+  .sidebar.mobile-open {
+    left: 0;
+  }
+
+  .sidebar-mobile-header {
+    display: flex;
+  }
+
+  .viewport-stage {
+    width: 100vw;
+    min-width: 0;
+  }
+
+  .workflow-stepper-bar {
+    padding: 6px 12px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+
+  .stepper-track {
+    min-width: max-content;
+  }
+
+  .screen-view {
+    padding: 18px 16px;
+  }
+
+  /* Stack Multi-Column Layouts */
+  .dashboard-split-layout {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .detail-columns-layout {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .routing-decision-banner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    padding: 14px 16px;
+  }
+
+  .routing-banner-left {
+    max-width: 100%;
+  }
+
+  .routing-banner-right {
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .override-box {
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .override-box .form-select {
+    width: 100%;
+  }
+
+  .terminal-split-workbench {
+    grid-template-columns: 1fr;
+    min-height: auto;
+    gap: 14px;
+  }
+
+  .thought-stream-scroll {
+    max-height: 320px;
+    min-height: 200px;
+  }
+
+  .terminal-panel {
+    min-height: 360px;
+  }
+
+  .diff-workbench-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .diff-file-tree {
+    max-height: 240px;
+    overflow-y: auto;
+  }
+
+  .verification-split-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .completion-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .settings-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   BREAKPOINT 3: MOBILE PHONES & PHABLETS (<= 768px)
+   -------------------------------------------------------------------------- */
+@media screen and (max-width: 768px) {
+  .titlebar {
+    height: auto;
+    min-height: var(--titlebar-height);
+    padding: 6px 10px;
+    gap: 8px;
+  }
+
+  .brand-bridge-badge,
+  .version-tag {
+    display: none;
+  }
+
+  .titlebar-center {
+    flex: 1;
+    margin: 0;
+  }
+
+  .command-search-trigger {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    justify-content: flex-start;
+  }
+
+  .cmd-text {
+    font-size: 11px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .runtime-standby {
+    display: none;
+  }
+
+  .finops-badge .text-muted {
+    display: none;
+  }
+
+  .screen-header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+    margin-bottom: 16px;
+  }
+
+  .screen-title {
+    font-size: 17px;
+    line-height: 1.3;
+  }
+
+  .screen-subtitle {
+    font-size: 11.5px;
+  }
+
+  .header-actions {
+    flex-wrap: wrap;
+    width: 100%;
+    gap: 6px;
+  }
+
+  .header-actions .btn {
+    flex: 1 1 calc(50% - 6px);
+    justify-content: center;
+    font-size: 11px;
+    padding: 6px 10px;
+    text-align: center;
+  }
+
+  .header-actions .view-toggle-group {
+    width: 100%;
+    display: flex;
+  }
+
+  .header-actions .view-toggle-group .toggle-btn {
+    flex: 1;
+    text-align: center;
+  }
+
+  .metric-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .metric-card {
+    padding: 12px 14px;
+  }
+
+  .telemetry-strip {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    padding: 8px 10px;
+  }
+
+  .risk-scorecard-banner {
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .risk-matrix-factors {
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .action-gate-footer {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .gate-btns {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .gate-btns .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .agent-steer-bar {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .agent-steer-bar .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .pipeline-pill-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .sim-results-grid {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .video-controls-bar {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .statusbar {
+    font-size: 11px;
+    padding: 0 8px;
+  }
+
+  .statusbar-center {
+    display: none;
+  }
+
+  .statusbar-right .sb-item:not(:first-child) {
+    display: none;
+  }
+
+  .modal-dialog {
+    max-width: 95vw;
+    margin: 12px auto;
+    padding: 14px;
+  }
+
+  .modal-footer {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .modal-footer .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .modal-palette-dialog {
+    max-width: 95vw;
+    margin: 16px auto;
+  }
+
+  /* Table responsiveness with smooth horizontal scroll */
+  .table-container {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .data-table {
+    min-width: 580px;
+  }
+
+  /* Diff viewer line wrapping and horizontal code scrolling */
+  .diff-line .ln {
+    width: 34px;
+    min-width: 34px;
+    padding-right: 6px;
+    font-size: 10.5px;
+  }
+
+  .diff-line .code {
+    font-size: 11px;
+    padding-left: 6px;
+    overflow-x: auto;
+  }
+
+  .diff-split-container {
+    min-width: 520px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   BREAKPOINT 4: ULTRA-COMPACT SMARTPHONES (<= 480px)
+   -------------------------------------------------------------------------- */
+@media screen and (max-width: 480px) {
+  .titlebar-right .jira-status-pill,
+  .titlebar-right .finops-badge {
+    display: none;
+  }
+
+  .telemetry-strip {
+    grid-template-columns: 1fr;
+  }
+
+  .header-actions .btn {
+    flex: 1 1 100%;
+  }
+
+  .brand-name {
+    font-size: 11px;
+  }
+
+  .screen-view {
+    padding: 12px 10px;
+  }
+
+  .diff-header-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+}
+
+
